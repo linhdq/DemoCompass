@@ -1,6 +1,5 @@
 package com.ldz.fpt.democompass;
 
-import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -15,13 +14,11 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, OnMapReadyCallback {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -52,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // for the system's orientation sensor registered listeners
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_GAME);
-
     }
 
     @Override
@@ -92,10 +88,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         ra.setFillAfter(true);
         // Start the animation
         imvCompass.startAnimation(ra);
-        currentDegrees = -degree;
-        if (mMap != null){
+        if (mMap != null && Math.abs(-currentDegrees - degree) >= 0.1f) {
             rotateMap(degree);
         }
+        currentDegrees = -degree;
     }
 
     @Override
@@ -106,8 +102,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.getUiSettings().setCompassEnabled(true);
         mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mMap.getUiSettings().setCompassEnabled(true);
     }
 
     private String getDirection(float degree) {
