@@ -1,5 +1,6 @@
 package com.ldz.fpt.democompass;
 
+import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -14,9 +15,13 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, OnMapReadyCallback {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -31,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private GoogleMap mMap;
     private LocationManager locationManager;
     private Location location;
+    private float bearing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void init() {
+
         //view
         txtTitle = (TextView) findViewById(R.id.txt_title);
         imvCompass = (ImageView) findViewById(R.id.imv_compass);
@@ -65,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        //
+        bearing = 0;
     }
 
     @Override
@@ -84,7 +93,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // Start the animation
         imvCompass.startAnimation(ra);
         currentDegrees = -degree;
-
+        if (mMap != null){
+            rotateMap(degree);
+        }
     }
 
     @Override
@@ -95,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.getUiSettings().setCompassEnabled(true);
         mMap.setMyLocationEnabled(true);
     }
 
@@ -124,5 +136,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             return String.format("Facing: %.1f North West", degree);
         }
         return "";
+    }
+
+    private void rotateMap(float bearing) {
+        CameraPosition current = mMap.getCameraPosition();
+        CameraPosition position = new CameraPosition(current.target, current.zoom, current.tilt, bearing);
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(position));
     }
 }
