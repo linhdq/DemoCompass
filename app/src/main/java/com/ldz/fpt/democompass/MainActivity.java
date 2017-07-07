@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
@@ -69,8 +70,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         // get the angle around the z-axis rotated
-        float degree = Math.round(sensorEvent.values[0]);
-        txtTitle.setText("Heading: " + Float.toString(degree) + " degrees");
+        float degree = sensorEvent.values[0];
+        txtTitle.setText(getDirection(degree));
         // create a rotation animation (reverse turn degree degrees)
         RotateAnimation ra = new RotateAnimation(
                 currentDegrees, -degree,
@@ -95,5 +96,33 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMyLocationEnabled(true);
+    }
+
+    private String getDirection(float degree) {
+        if (degree <= 22.5f || degree > 337.5f) {
+            return String.format("Facing: %.1f North", degree);
+        }
+        if (degree > 22.5f && degree <= 67.5f) {
+            return String.format("Facing: %.1f North East", degree);
+        }
+        if (degree > 67.5f && degree <= 112.5f) {
+            return String.format("Facing: %.1f East", degree);
+        }
+        if (degree > 112.5f && degree <= 157.5f) {
+            return String.format("Facing: %.1f South East", degree);
+        }
+        if (degree > 157.5f && degree <= 202.5f) {
+            return String.format("Facing: %.1f South", degree);
+        }
+        if (degree > 202.5f && degree <= 247.5f) {
+            return String.format("Facing: %.1f South West", degree);
+        }
+        if (degree > 247.5f && degree <= 292.5f) {
+            return String.format("Facing: %.1f West", degree);
+        }
+        if (degree > 292.5f && degree <= 337.5f) {
+            return String.format("Facing: %.1f North West", degree);
+        }
+        return "";
     }
 }
