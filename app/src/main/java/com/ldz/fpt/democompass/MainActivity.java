@@ -4,6 +4,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,7 +14,11 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+
+public class MainActivity extends AppCompatActivity implements SensorEventListener, OnMapReadyCallback {
     private static final String TAG = MainActivity.class.getSimpleName();
     //view
     private TextView txtTitle;
@@ -21,6 +27,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensorManager;
     //
     private float currentDegrees = 0f;
+    //
+    private GoogleMap mMap;
+    private LocationManager locationManager;
+    private Location location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +61,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         imvCompass = (ImageView) findViewById(R.id.imv_compass);
         //
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        //
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -76,5 +90,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setMyLocationEnabled(true);
     }
 }

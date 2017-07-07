@@ -5,6 +5,14 @@
     android:layout_height="match_parent"
     tools:context="com.ldz.fpt.democompass.MainActivity">
 
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.ldz.fpt.democompass.MapsActivity" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" 
@@ -12,6 +20,7 @@
         android:textColor="#000000"
         android:layout_marginTop="5dp"
         android:id="@+id/txt_title"
+        android:background="#00FFFFFF"
         />
     
     <ImageView
@@ -20,5 +29,6 @@
         android:layout_centerInParent="true"
         android:src="@mipmap/compass"
         android:id="@+id/imv_compass"
+        android:background="#00FFFFFF"
         />
 </RelativeLayout>
