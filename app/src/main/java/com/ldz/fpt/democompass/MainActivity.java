@@ -149,10 +149,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void rotateMap(float bearing) {
+        location = mMap.getMyLocation();
         CameraPosition current = mMap.getCameraPosition();
-        CameraPosition position = new CameraPosition(current.target, current.zoom, current.tilt, bearing);
+        CameraPosition position = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), current.zoom, current.tilt, bearing);
         mMap.moveCamera(CameraUpdateFactory.newCameraPosition(position));
-
     }
 
     @Override
