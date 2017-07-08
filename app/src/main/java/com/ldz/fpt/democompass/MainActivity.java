@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
                 SensorManager.SENSOR_DELAY_GAME);
         checkGPSEnable();
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -107,15 +108,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         ra.setFillAfter(true);
         // Start the animation
         imvCompass.startAnimation(ra);
-//        if (isOnMyLocation) {
-//            location = mMap.getMyLocation();
-//            if (location != null) {
-//                CameraPosition position = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, 0, 0);
-//                mMap.moveCamera(CameraUpdateFactory.newCameraPosition(position));
-//                isOnMyLocation = false;
-//            }
-//        }
-        if (mMap != null && Math.abs(-currentDegrees - degree) >= 0.1f) {
+        if (isOnMyLocation) {
+            location = mMap.getMyLocation();
+            if (location != null) {
+                isOnMyLocation = false;
+            }
+        }
+        if (mMap != null && Math.abs(-currentDegrees - degree) >= 0.1f && !isOnMyLocation) {
             rotateMap(degree);
         }
         currentDegrees = -degree;
@@ -166,20 +165,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void rotateMap(float bearing) {
         location = mMap.getMyLocation();
-        if (location != null) {
-            CameraPosition current = mMap.getCameraPosition();
-            CameraPosition position = null;
-            if (current.zoom == 16.5d) {
-                position = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), current.zoom, current.tilt, bearing);
-            } else {
-                position = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, 0, bearing);
-            }
-            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(position));
-        }
+        CameraPosition current = mMap.getCameraPosition();
+        CameraPosition position = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, current.tilt, bearing);
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(position));
     }
 
     @Override
     public boolean onMyLocationButtonClick() {
+        location = mMap.getMyLocation();
         return false;
     }
 
