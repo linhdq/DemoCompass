@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private LocationManager locationManager;
     private Location location;
     private boolean isOnMyLocation;
+    private boolean isAnimate;
     private SupportMapFragment mapFragment;
 
     @Override
@@ -101,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void init() {
         //view
         isOnMyLocation = true;
+        isAnimate = false;
         txtTitle = (TextView) findViewById(R.id.txt_title);
         imvCompass = (ImageView) findViewById(R.id.imv_compass);
         //
@@ -156,10 +158,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         ra.setFillAfter(true);
         // Start the animation
         imvCompass.startAnimation(ra);
-        if (isOnMyLocation) {
+        if (!isAnimate) {
             location = mMap.getMyLocation();
             if (location != null) {
-                isOnMyLocation = false;
+                mMap.setOnCameraIdleListener(MainActivity.this);
+                CameraPosition cameraPosition = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, 0, 0);
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                isAnimate = true;
             }
         }
         if (mMap != null && Math.abs(-currentDegrees - degree) >= 0.1f && !isOnMyLocation) {
@@ -213,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         location = mMap.getMyLocation();
         if (location != null) {
             CameraPosition current = mMap.getCameraPosition();
-            CameraPosition position = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, current.tilt, bearing);
+            CameraPosition position = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), current.zoom, current.tilt, bearing);
             mMap.moveCamera(CameraUpdateFactory.newCameraPosition(position));
         }
     }
