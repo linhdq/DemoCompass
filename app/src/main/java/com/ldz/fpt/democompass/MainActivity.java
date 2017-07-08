@@ -1,5 +1,6 @@
 package com.ldz.fpt.democompass;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,15 +10,21 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,11 +35,17 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener,
         OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMapLoadedCallback, GoogleMap.OnCameraIdleListener {
+        GoogleMap.OnMapLoadedCallback, GoogleMap.OnCameraIdleListener, View.OnClickListener {
+
     private static final String TAG = MainActivity.class.getSimpleName();
     //view
     private TextView txtTitle;
     private ImageView imvCompass;
+    private Dialog dialogInternet;
+    private Button btnOk;
+    private Dialog dialogGPS;
+    private Button btnCancel;
+    private Button btnSetting;
     //
     private SensorManager sensorManager;
     //
@@ -41,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private GoogleMap mMap;
     private LocationManager locationManager;
     private Location location;
-    private float bearing;
     private boolean isOnMyLocation;
     private SupportMapFragment mapFragment;
 
@@ -51,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
         //
         init();
+        addListener();
     }
 
     @Override
@@ -67,12 +80,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 SensorManager.SENSOR_DELAY_GAME);
         checkGPSEnable();
         mapFragment.getMapAsync(this);
+        //
+        if (!checkInternetAvailable()) {
+            dialogInternet.show();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         sensorManager.unregisterListener(this);
+        if (dialogInternet.isShowing()) {
+            dialogInternet.dismiss();
+        }
+        if (dialogGPS.isShowing()) {
+            dialogGPS.dismiss();
+        }
     }
 
     private void init() {
@@ -81,16 +104,41 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         txtTitle = (TextView) findViewById(R.id.txt_title);
         imvCompass = (ImageView) findViewById(R.id.imv_compass);
         //
+        dialogInternet = new Dialog(this);
+        dialogInternet.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        dialogInternet.setContentView(R.layout.custom_dialog_internet_connection);
+        dialogInternet.setCanceledOnTouchOutside(false);
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        Window window = dialogInternet.getWindow();
+        lp.copyFrom(window.getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setAttributes(lp);
+        //
+        btnOk = (Button) dialogInternet.findViewById(R.id.btn_ok);
+        //
+        dialogGPS = new Dialog(this);
+        dialogGPS.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        dialogGPS.setContentView(R.layout.custom_dialog_gps);
+        dialogGPS.setCanceledOnTouchOutside(false);
+        dialogGPS.getWindow().setAttributes(lp);
+        //
+        btnCancel = (Button) dialogGPS.findViewById(R.id.btn_cancel);
+        btnSetting = (Button) dialogGPS.findViewById(R.id.btn_setting);
+        //
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         //
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         //
-        bearing = 0;
-        //
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     }
 
+    private void addListener() {
+        btnOk.setOnClickListener(this);
+        btnCancel.setOnClickListener(this);
+        btnSetting.setOnClickListener(this);
+    }
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
@@ -129,8 +177,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMyLocationEnabled(true);
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        mMap.getUiSettings().setCompassEnabled(true);
         mMap.setOnMyLocationButtonClickListener(MainActivity.this);
         mMap.setOnMapLoadedCallback(MainActivity.this);
     }
@@ -165,9 +211,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void rotateMap(float bearing) {
         location = mMap.getMyLocation();
-        CameraPosition current = mMap.getCameraPosition();
-        CameraPosition position = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, current.tilt, bearing);
-        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(position));
+        if (location != null) {
+            CameraPosition current = mMap.getCameraPosition();
+            CameraPosition position = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, current.tilt, bearing);
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(position));
+        }
+    }
+
+    private boolean checkInternetAvailable() {
+        ConnectivityManager cm =
+                (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        return isConnected;
     }
 
     @Override
@@ -178,23 +236,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void checkGPSEnable() {
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this)
-                    .setTitle("Enable GPS")
-                    .setMessage("You need to enable GPS ...")
-                    .setPositiveButton("Setting", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivityForResult(myIntent, 0);
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            finish();
-                        }
-                    });
-            alertDialog.create().show();
+            dialogGPS.show();
         } else {
             mapFragment.getMapAsync(this);
         }
@@ -213,5 +255,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onCameraIdle() {
         isOnMyLocation = false;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_ok:
+                dialogInternet.dismiss();
+                break;
+            case R.id.btn_cancel:
+                dialogGPS.dismiss();
+                finish();
+                break;
+            case R.id.btn_setting:
+                Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(myIntent);
+                break;
+            default:
+                break;
+        }
     }
 }
