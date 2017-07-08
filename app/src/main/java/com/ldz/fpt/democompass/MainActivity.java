@@ -14,7 +14,6 @@ import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
@@ -27,7 +26,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener, OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMapLoadedCallback, GoogleMap.OnCameraIdleListener {
+public class MainActivity extends AppCompatActivity implements SensorEventListener,
+        OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
+        GoogleMap.OnMapLoadedCallback, GoogleMap.OnCameraIdleListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     //view
     private TextView txtTitle;
@@ -50,6 +51,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
         //
         init();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -83,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     }
 
+
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         // get the angle around the z-axis rotated
@@ -99,7 +107,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         ra.setFillAfter(true);
         // Start the animation
         imvCompass.startAnimation(ra);
-        if (mMap != null && Math.abs(-currentDegrees - degree) >= 0.1f && !isOnMyLocation) {
+//        if (isOnMyLocation) {
+//            location = mMap.getMyLocation();
+//            if (location != null) {
+//                CameraPosition position = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, 0, 0);
+//                mMap.moveCamera(CameraUpdateFactory.newCameraPosition(position));
+//                isOnMyLocation = false;
+//            }
+//        }
+        if (mMap != null && Math.abs(-currentDegrees - degree) >= 0.1f) {
             rotateMap(degree);
         }
         currentDegrees = -degree;
@@ -150,9 +166,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void rotateMap(float bearing) {
         location = mMap.getMyLocation();
-        CameraPosition current = mMap.getCameraPosition();
-        CameraPosition position = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), current.zoom, current.tilt, bearing);
-        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(position));
+        if (location != null) {
+            CameraPosition current = mMap.getCameraPosition();
+            CameraPosition position = null;
+            if (current.zoom == 16.5d) {
+                position = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), current.zoom, current.tilt, bearing);
+            } else {
+                position = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, 0, bearing);
+            }
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(position));
+        }
     }
 
     @Override
@@ -169,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivity(myIntent);
+                            startActivityForResult(myIntent, 0);
                         }
                     })
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -181,20 +204,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             alertDialog.create().show();
         } else {
             mapFragment.getMapAsync(this);
-
         }
     }
 
     @Override
     public void onMapLoaded() {
-        do {
-            location = mMap.getMyLocation();
-        } while (location == null);
-        Log.d("fuck", "lat = " + location.getLatitude() + " - long = " + location.getLongitude());
-        mMap.setOnCameraIdleListener(MainActivity.this);
-        CameraPosition cameraPosition = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, 0, 0);
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        Log.d("fuck", "fuck");
+        location = mMap.getMyLocation();
+        if (location != null) {
+            mMap.setOnCameraIdleListener(MainActivity.this);
+            CameraPosition cameraPosition = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, 0, 0);
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        }
     }
 
     @Override
