@@ -5,36 +5,81 @@
     android:layout_height="match_parent"
     tools:context="com.ldz.fpt.democompass.MainActivity">
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <RelativeLayout
+        android:id="@+id/layout_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        android:padding="2dp">
+        <View
+            android:layout_width="1dp"
+            android:layout_height="30dp"
+            android:layout_centerInParent="true"
+            android:id="@+id/view_"
+            android:background="@color/grey_300"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            />
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:src="@drawable/banner"
+            android:layout_toLeftOf="@id/view_"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/view_"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:textColor="@color/grey_900"
+            android:textSize="@dimen/_10sdp"
+            android:id="@+id/txt_status_bottom"
+            />
+    </RelativeLayout>
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.ldz.fpt.democompass.MapsActivity" />
+        android:layout_above="@id/layout_bottom"
+        >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" 
-        android:layout_centerHorizontal="true"
-        android:textColor="#000000"
-        android:layout_marginTop="5dp"
-        android:id="@+id/txt_title"
-        android:background="@drawable/custom_textview_background"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:gravity="center"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:textSize="12sp"
-        />
-    
-    <ImageView
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_centerInParent="true"
-        android:id="@+id/imv_compass"
-        android:background="#00FFFFFF"
-        android:src="@mipmap/compass"
-        />
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context="com.ldz.fpt.democompass.MapsActivity" />
+
+        <ImageView
+            android:id="@+id/imv_compass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="@dimen/_35sdp"
+            android:layout_marginRight="@dimen/_35sdp"
+            android:adjustViewBounds="true"
+            android:background="#00FFFFFF"
+            android:src="@drawable/compass_image" />
+
+        <TextView
+            android:id="@+id/txt_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/imv_compass"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:background="@drawable/custom_textview_background"
+            android:gravity="center"
+            android:paddingBottom="@dimen/_5sdp"
+            android:paddingLeft="@dimen/_10sdp"
+            android:paddingRight="@dimen/_10sdp"
+            android:paddingTop="@dimen/_5sdp"
+            android:textColor="#000000"
+            android:textSize="@dimen/_12sdp" />
+    </RelativeLayout>
 </RelativeLayout>

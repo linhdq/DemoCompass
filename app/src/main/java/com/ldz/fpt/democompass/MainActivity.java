@@ -2,7 +2,6 @@ package com.ldz.fpt.democompass;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -14,7 +13,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
@@ -24,7 +22,6 @@ import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,6 +29,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener,
         OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Dialog dialogGPS;
     private Button btnCancel;
     private Button btnSetting;
+    private TextView txtStatusBottom;
     //
     private SensorManager sensorManager;
     //
@@ -54,9 +55,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private GoogleMap mMap;
     private LocationManager locationManager;
     private Location location;
+    //
     private boolean isOnMyLocation;
     private boolean isAnimate;
+    private String today;
     private SupportMapFragment mapFragment;
+    //
+    private SimpleDateFormat formatDate = new SimpleDateFormat("dd/MM/yyyy");
+    private Date date;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         isAnimate = false;
         txtTitle = (TextView) findViewById(R.id.txt_title);
         imvCompass = (ImageView) findViewById(R.id.imv_compass);
+        txtStatusBottom = (TextView) findViewById(R.id.txt_status_bottom);
         //
         dialogInternet = new Dialog(this);
         dialogInternet.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
@@ -134,6 +142,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 .findFragmentById(R.id.map);
         //
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        //
+        date = new Date();
+        today = formatDate.format(date);
+        txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", 0f, 0f, today));
     }
 
     private void addListener() {
@@ -165,10 +177,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 CameraPosition cameraPosition = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, 0, 0);
                 mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 isAnimate = true;
+                txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", location.getLongitude(), location.getLatitude(), today));
             }
         }
         if (mMap != null && Math.abs(-currentDegrees - degree) >= 0.1f && !isOnMyLocation) {
             rotateMap(degree);
+            //
+            txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", location.getLongitude(), location.getLatitude(), today));
         }
         currentDegrees = -degree;
     }
@@ -184,34 +199,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mMap.setMyLocationEnabled(true);
         mMap.setOnMyLocationButtonClickListener(MainActivity.this);
         mMap.setOnMapLoadedCallback(MainActivity.this);
-    }
-
-    private String getDirection(float degree) {
-        if (degree <= 22.5f || degree > 337.5f) {
-            return String.format("Facing: %.1f North", degree);
-        }
-        if (degree > 22.5f && degree <= 67.5f) {
-            return String.format("Facing: %.1f North East", degree);
-        }
-        if (degree > 67.5f && degree <= 112.5f) {
-            return String.format("Facing: %.1f East", degree);
-        }
-        if (degree > 112.5f && degree <= 157.5f) {
-            return String.format("Facing: %.1f South East", degree);
-        }
-        if (degree > 157.5f && degree <= 202.5f) {
-            return String.format("Facing: %.1f South", degree);
-        }
-        if (degree > 202.5f && degree <= 247.5f) {
-            return String.format("Facing: %.1f South West", degree);
-        }
-        if (degree > 247.5f && degree <= 292.5f) {
-            return String.format("Facing: %.1f West", degree);
-        }
-        if (degree > 292.5f && degree <= 337.5f) {
-            return String.format("Facing: %.1f North West", degree);
-        }
-        return "";
+        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
     }
 
     private void rotateMap(float bearing) {
@@ -279,5 +267,201 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             default:
                 break;
         }
+    }
+
+    private String getDirection(float degree) {
+        if (degree>=0.000f && degree<= 5.625f) {
+            return String.format("Địa Lôi Phục 1/8\n(%.3f) Tý", degree);
+        }
+        if (degree>=5.625f && degree<= 11.250f) {
+            return String.format("Sơn Lôi Di 6/3\n(%.3f) Tý-Quý", degree);
+        }
+        if (degree>=11.251f && degree<= 16.875f) {
+            return String.format("Thủy Lôi Truân 7/4\n(%.3f) Quý", degree);
+        }
+        if (degree>=16.876f && degree<= 22.500f) {
+            return String.format("Phong Lôi Ích 2/9\n(%.3f) Quý", degree);
+        }
+        if (degree>=22.501f && degree<= 28.125f) {
+            return String.format("Chấn Vi Lôi 8/1\n(%.3f) Sửu", degree);
+        }
+        if (degree>=28.126f && degree<= 33.750f) {
+            return String.format("Hỏa Lôi Phệ Hạp 3/6\n(%.3f) Sửu", degree);
+        }
+        if (degree>=33.751f && degree<= 39.375f) {
+            return String.format("Trạch Lôi Tùy 4/7\n(%.3f) Sửu-Cấn", degree);
+        }
+        if (degree>=39.376f && degree<= 45.000f) {
+            return String.format("Thiên Lôi Vô Vọng 9/2\n(%.3f) Cấn", degree);
+        }
+        if (degree>=45.001f && degree<= 50.625f) {
+            return String.format("Địa Hỏa Minh Di 1/3\n(%.3f) Cấn", degree);
+        }
+        if (degree>=50.626f && degree<= 56.250f) {
+            return String.format("Sơn Hỏa Bí 6/8\n(%.3f) Cấn-Dần", degree);
+        }
+        if (degree>=56.251f && degree<= 61.875f) {
+            return String.format("Thủy Hỏa Ký Tế 7/9\n(%.3f) Dần", degree);
+        }
+        if (degree>=61.876f && degree<= 67.500f) {
+            return String.format("Phong Hỏa Gia Nhân 2/4\n(%.3f) Dần", degree);
+        }
+        if (degree>=67.501f && degree<= 73.125f) {
+            return String.format("Lôi Hỏa Phong 8/6\n(%.3f) Giáp", degree);
+        }
+        if (degree>=73.126f && degree<= 78.750f) {
+            return String.format("Ly Vi Hỏa 3/1\n(%.3f) Giáp", degree);
+        }
+        if (degree>=78.751f && degree<= 84.375f) {
+            return String.format("Trạch Hỏa Cách 4/2\n(%.3f) Giáp-Mão", degree);
+        }
+        if (degree>=84.376f && degree<= 90.000f) {
+            return String.format("Thiên Hỏa Đồng Nhân 9/7\n(%.3f) Mão", degree);
+        }
+        if (degree>=90.001f && degree<= 95.625f) {
+            return String.format("Địa Trạch Lâm 1/7\n(%.3f) Mão", degree);
+        }
+        if (degree>=95.626f && degree<= 101.250f) {
+            return String.format("Sơn Trạch Tổn 6/9\n(%.3f) Mão", degree);
+        }
+        if (degree>=101.251f && degree<= 106.875f) {
+            return String.format("Thủy Trạch Tiết 7/8\n(%.3f) Ất", degree);
+        }
+        if (degree>=106.875f && degree<= 112.500f) {
+            return String.format("Phong Trạch Trung Phu 2/3\n(%.3f) Ất", degree);
+        }
+        if (degree>=112.501f && degree<= 118.125f) {
+            return String.format("Lôi Trạch Quy Muội 8/7\n(%.3f) Thìn", degree);
+        }
+        if (degree>=118.126f && degree<= 123.750f) {
+            return String.format("Hỏa Trạch Khuê 3/2\n(%.3f) Thìn", degree);
+        }
+        if (degree>=123.751f && degree<= 129.375f) {
+            return String.format("Đoài Vi Trạch 4/1\n(%.3f) Thìn-Tốn", degree);
+        }
+        if (degree>=129.376f && degree<= 135.000f) {
+            return String.format("Thiên Trạch  Lý 9/6\n(%.3f) Tốn", degree);
+        }
+        if (degree>=135.001f && degree<= 140.625f) {
+            return String.format("Địa Thiên Thái 1/9\n(%.3f) Tốn", degree);
+        }
+        if (degree>=140.626f && degree<= 146.250f) {
+            return String.format("Sơn Thiên Đại Súc 6/4\n(%.3f) Tốn-Tỵ", degree);
+        }
+        if (degree>=146.251 && degree<= 151.875f) {
+            return String.format("Thủy Thiên Nhu 7/3\n(%.3f) Tỵ", degree);
+        }
+        if (degree>=151.876f && degree<= 157.500f) {
+            return String.format("Phong Thiên Tiểu Súc 2/8\n(%.3f) Tỵ", degree);
+        }
+        if (degree>=157.501f && degree<= 163.125f) {
+            return String.format("Lôi Thiên Đại Tráng 8/2\n(%.3f) Bính", degree);
+        }
+        if (degree>=163.126f && degree<= 168.750f) {
+            return String.format("Hỏa Thiên Đại Hữu 3/7\n(%.3f) Bính", degree);
+        }
+        if (degree>=168.751f && degree<= 174.375f) {
+            return String.format("Trạch Thiên Quải 4/6\n(%.3f) Bính-Ngọ", degree);
+        }
+        if (degree>=174.376f && degree<= 180.000f) {
+            return String.format("Càn Vi Thiên 9/1\n(%.3f) Ngọ", degree);
+        }
+        if (degree>=180.001f && degree<= 185.625f) {
+            return String.format("Thiên Phong Cấu 9/8\n(%.3f) Ngọ", degree);
+        }
+        if (degree>=185.625f && degree<= 191.250f) {
+            return String.format("Trạch Phong Đại Quá 4/3\n(%.3f) Đinh", degree);
+        }
+        if (degree>=191.251f && degree<= 196.875f) {
+            return String.format("Hỏa Phong Đỉnh 3/4\n(%.3f) Đinh", degree);
+        }
+        if (degree>=196.876f && degree<= 202.500f) {
+            return String.format("Lôi Phong Hằng 8/9\n(%.3f) Đinh", degree);
+        }
+        if (degree>=202.501f && degree<= 208.125f) {
+            return String.format("Tốn Vi Phong 2/1\n(%.3f) Mùi", degree);
+        }
+        if (degree>=208.126f && degree<= 213.750f) {
+            return String.format("Thủy Phong Tỉnh 7/6\n(%.3f) Mùi", degree);
+        }
+        if (degree>=213.751f && degree<= 219.375f) {
+            return String.format("Sơn Phong Cổ 6/7\n(%.3f) Mùi-Khôn", degree);
+        }
+        if (degree>=219.376f && degree<= 225.000f) {
+            return String.format("Địa Phong Thăng 3/2\n(%.3f) Khôn", degree);
+        }
+        if (degree>=225.001f && degree<= 230.625f) {
+            return String.format("Thiên Thủy Tụng 9/3\n(%.3f) Khôn", degree);
+        }
+        if (degree>=230.626f && degree<= 236.250f) {
+            return String.format("Trạch Thủy Khốn 4/8\n(%.3f) Khôn-Thân", degree);
+        }
+        if (degree>=236.251f && degree<= 241.875f) {
+            return String.format("Hỏa Thủy Vị Tế 3/9\n(%.3f) Thân", degree);
+        }
+        if (degree>=241.876f && degree<= 247.500f) {
+            return String.format("Lôi Thủy Giải 8/4\n(%.3f) Thân", degree);
+        }
+        if (degree>=247.501f && degree<= 253.125f) {
+            return String.format("Phong Thủy Hoán 2/6\n(%.3f) Canh", degree);
+        }
+        if (degree>=253.126f && degree<= 258.750f) {
+            return String.format("Khảm Vi Thủy 7/1\n(%.3f) Canh", degree);
+        }
+        if (degree>=258.751f && degree<= 264.375f) {
+            return String.format("Sơn Thủy Mông 6/2\n(%.3f) Canh-Dậu", degree);
+        }
+        if (degree>=264.376f && degree<= 270.000f) {
+            return String.format("Địa Thủy Sư 1/7\n(%.3f) Dậu", degree);
+        }
+        if (degree>=270.001f && degree<= 275.625f) {
+            return String.format("Thiên Sơn Độn 9/4\n(%.3f) Dậu", degree);
+        }
+        if (degree>=275.626f && degree<= 281.250f) {
+            return String.format("Trạch Sơn Hàm 4/9\n(%.3f) Dậu-Tân", degree);
+        }
+        if (degree>=281.251f && degree<= 286.875f) {
+            return String.format("Hỏa Sơn Lữ 3/8\n(%.3f) Tân", degree);
+        }
+        if (degree>=286.876f && degree<= 292.500f) {
+            return String.format("Lôi Sơn Tiểu Quá 8/3\n(%.3f) Tân", degree);
+        }
+        if (degree>=292.501f && degree<= 298.125f) {
+            return String.format("Phong Sơn Tiệm 2/7\n(%.3f) Tuất", degree);
+        }
+        if (degree>=298.126f && degree<= 303.750f) {
+            return String.format("Thủy Sơn Kiển 7/2\n(%.3f) Tuất", degree);
+        }
+        if (degree>=303.751f && degree<= 309.375f) {
+            return String.format("Cấn Vi Sơn 6/1\n(%.3f) Tuất-Càn", degree);
+        }
+        if (degree>=309.376f && degree<= 315.000f) {
+            return String.format("Địa Sơn Khiêm 1/6\n(%.3f) Càn", degree);
+        }
+        if (degree>=315.001f && degree<= 320.625f) {
+            return String.format("Thiên Địa Bĩ 9/9\n(%.3f) Càn", degree);
+        }
+        if (degree>=320.626f && degree<= 326.250f) {
+            return String.format("Trạch Địa Tụy 4/4\n(%.3f) Càn-Hợi", degree);
+        }
+        if (degree>=326.251f && degree<= 331.875f) {
+            return String.format("Hỏa Địa Tấn 3/3\n(%.3f) Hợi", degree);
+        }
+        if (degree>=331.876f && degree<= 337.500f) {
+            return String.format("Lôi Địa Dự 8/8\n(%.3f) Hợi", degree);
+        }
+        if (degree>=337.501f && degree<= 343.125f) {
+            return String.format("Phong Địa Quán 2/2\n(%.3f) Nhâm", degree);
+        }
+        if (degree>=343.126f && degree<= 348.750f) {
+            return String.format("Thủy Địa Tỷ 7/7\n(%.3f) Nhâm", degree);
+        }
+        if (degree>=348.751f && degree<= 354.375f) {
+            return String.format("Sơn Địa Bác 6/6\n(%.3f) Nhâm-Tý", degree);
+        }
+        if (degree>=354.376f && degree<= 360.000f) {
+            return String.format("Khôn Vi Địa 1/1\n(%.3f) Nhâm-Tý", degree);
+        }
+        return "";
     }
 }
