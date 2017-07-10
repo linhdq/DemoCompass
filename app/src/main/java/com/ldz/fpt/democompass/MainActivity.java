@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private GoogleMap mMap;
     private LocationManager locationManager;
     private Location location;
+    private LatLng centerPosition;
     //
     private boolean isLocked;
     private boolean isOnMyLocation;
@@ -237,10 +238,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void rotateMap(float bearing) {
-        location = mMap.getMyLocation();
-        if (location != null) {
+        centerPosition = mMap.getCameraPosition().target;
+        if (centerPosition != null) {
             CameraPosition current = mMap.getCameraPosition();
-            CameraPosition position = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), current.zoom, current.tilt, bearing);
+            CameraPosition position = new CameraPosition(centerPosition, current.zoom, current.tilt, bearing);
             mMap.moveCamera(CameraUpdateFactory.newCameraPosition(position));
         }
     }
