@@ -12,40 +12,38 @@
         android:layout_alignParentBottom="true"
         android:background="@color/white"
         android:padding="2dp">
+
         <View
+            android:id="@+id/view_"
             android:layout_width="1dp"
             android:layout_height="30dp"
             android:layout_centerInParent="true"
-            android:id="@+id/view_"
-            android:background="@color/grey_300"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            />
+            android:background="@color/grey_300" />
+
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:src="@drawable/banner"
             android:layout_toLeftOf="@id/view_"
-            />
+            android:adjustViewBounds="true"
+            android:src="@drawable/banner" />
 
         <TextView
+            android:id="@+id/txt_status_bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/view_"
             android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/view_"
             android:gravity="center"
             android:textColor="@color/grey_900"
-            android:textSize="@dimen/_10sdp"
-            android:id="@+id/txt_status_bottom"
-            />
+            android:textSize="@dimen/_10sdp" />
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/layout_bottom"
-        >
+        android:layout_above="@id/layout_bottom">
 
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
@@ -54,6 +52,53 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context="com.ldz.fpt.democompass.MapsActivity" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:background="#80ffffff"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/btn_do"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/custom_button_transparent"
+                android:paddingBottom="@dimen/_5sdp"
+                android:paddingTop="@dimen/_5sdp"
+                android:src="@drawable/icon_do" />
+
+            <ImageView
+                android:id="@+id/btn_lock"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/custom_button_transparent"
+                android:paddingBottom="@dimen/_5sdp"
+                android:paddingTop="@dimen/_5sdp"
+                android:src="@drawable/icon_giu" />
+
+            <ImageView
+                android:id="@+id/btn_capture_screen"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/custom_button_transparent"
+                android:paddingBottom="@dimen/_7sdp"
+                android:paddingTop="@dimen/_7sdp"
+                android:src="@drawable/ic_capture_image" />
+
+            <ImageView
+                android:id="@+id/btn_info"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/custom_button_transparent"
+                android:paddingBottom="@dimen/_5sdp"
+                android:paddingTop="@dimen/_5sdp"
+                android:src="@drawable/ic_info" />
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/imv_compass"
@@ -66,12 +111,22 @@
             android:background="#00FFFFFF"
             android:src="@drawable/compass_image" />
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="@dimen/_35sdp"
+            android:layout_marginRight="@dimen/_35sdp"
+            android:adjustViewBounds="true"
+            android:background="#00FFFFFF"
+            android:src="@drawable/thap_red" />
+
         <TextView
             android:id="@+id/txt_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
             android:layout_below="@id/imv_compass"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="@dimen/_10sdp"
             android:background="@drawable/custom_textview_background"
             android:gravity="center"
