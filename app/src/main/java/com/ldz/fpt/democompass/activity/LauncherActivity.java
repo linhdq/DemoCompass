@@ -1,4 +1,4 @@
-package com.ldz.fpt.democompass;
+package com.ldz.fpt.democompass.activity;
 
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.VideoView;
+
+import com.ldz.fpt.democompass.R;
 
 public class LauncherActivity extends AppCompatActivity implements MediaPlayer.OnCompletionListener {
 
@@ -32,5 +34,6 @@ public class LauncherActivity extends AppCompatActivity implements MediaPlayer.O
         Intent intent = new Intent(LauncherActivity.this, MainActivity.class);
         startActivity(intent);
         finish();
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 }

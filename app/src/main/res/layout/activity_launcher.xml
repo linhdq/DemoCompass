@@ -3,24 +3,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.ldz.fpt.democompass.LauncherActivity">
+    tools:context="com.ldz.fpt.democompass.activity.LauncherActivity">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true">
-
+        android:orientation="vertical"
+        android:layout_centerInParent="true"
+        >
         <VideoView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/video_view"/>
-
         <ImageView
-            android:layout_width="@dimen/_60sdp"
-            android:layout_height="@dimen/_30sdp"
-            android:layout_gravity="bottom|right"
-            android:src="@mipmap/banner"/>
-
-    </FrameLayout>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:src="@drawable/logo"/>
+    </LinearLayout>
 
 </RelativeLayout>
