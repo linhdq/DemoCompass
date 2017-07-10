@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:scrollbars="none"
+    android:paddingLeft="@dimen/_10sdp"
+    android:paddingRight="@dimen/_10sdp"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sử dụng la bàn"
+            android:textSize="@dimen/_16sdp"
+            android:textStyle="bold"
+            android:textColor="@color/tint_color"
+            android:gravity="center"
+            android:textAllCaps="true"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/tint_color"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:textSize="@dimen/_12sdp"
+            android:text="- Chuẩn bị: thu dọn các vật bằng kim loại, từ tính,... xung quanh để tránh ảnh hưởng. \n\n- Đo đạc: bật phần mềm, quay phần dưới máy vuông góc với Tọa của công trình kiến trúc."
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/tint_color"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:textSize="@dimen/_12sdp"
+            android:text="Lưu ý:\n\n1. Phong thuỷ coi trọng 'nhất vị nhị hướng', tức coi trọng 'vị', cũng là Toạ khi đo đạc công trình kiến trúc, nên số độ đo được trong La bàn mặc định là Toạ. \n\n2. Nếu chưa biết cách xác định toạ hướng, vui lòng xin tư vấn của chuyên gia, hoặc tham gia khoá Phong thủy cơ bản A hoặc khóa La bàn cơ bản do Học viện Phong thủy Ngũ hành kết hợp cùng Viện Phong thủy Thế giới tổ chức. Chi tiết xem tại vienphongthuy.vn hoặc nguhanh.club"
+            />
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:scrollbars="none"
+    android:paddingLeft="@dimen/_10sdp"
+    android:paddingRight="@dimen/_10sdp"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Về la bàn"
+            android:textSize="@dimen/_16sdp"
+            android:textStyle="bold"
+            android:textColor="@color/tint_color"
+            android:gravity="center"
+            android:textAllCaps="true"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/tint_color"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:textSize="@dimen/_12sdp"
+            android:text="La bàn Ngũ hành là phần mềm la bàn thông minh, tích hợp công nghệ mới nhất, đảm bảo các yêu cầu chặt chẽ của khoa học phong thuỷ, giúp học viên và người dùng đo đạc chính xác tọa hướng của công trình kiến trúc hay khu vực cần nghiên cứu, khảo sát, thực địa,..."
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/tint_color"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:textSize="@dimen/_12sdp"
+            android:text="1. Đặc điểm:\n- Có thể tự động xoay hướng, tự động hiển thị toạ hướng, toạ độ,... dựa theo vị trí thực tế của người dùng.\n- Độ chính xác cao và chi tiết hơn các phần mềm hiện có: chia độ đến 0,001độ (các phần mềm hiện nay chỉ chia theo mức 1 độ);\n- Kết quả có thể 'Giữ' để đọc lại, hoặc lưu dưới dạng ảnh, hay chia sẻ qua Facebook."
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/tint_color"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:textSize="@dimen/_12sdp"
+            android:text="2. Đối tượng sử dụng:\n- Do giản tiện, dễ sử dụng lại có độ chính xác cao nên thích hợp cho cả người dùng phổ thông, học viên, nhà nghiên cứu đến các thầy, các chuyên gia phong thuỷ.  \n- Rất thích hợp để đo hình thế, khảo sát âm trạch,…"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/tint_color"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:textSize="@dimen/_12sdp"
+            android:text="--------\n- Có thể xem thêm thông tin tại nguhanh.vn hoặc vienphongthuy.vn"
+            />
+    </LinearLayout>
+</ScrollView>

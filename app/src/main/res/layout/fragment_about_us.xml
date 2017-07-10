@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:scrollbars="none"
+    android:paddingLeft="@dimen/_10sdp"
+    android:paddingRight="@dimen/_10sdp"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Về chúng tôi"
+            android:textSize="@dimen/_16sdp"
+            android:textStyle="bold"
+            android:textColor="@color/tint_color"
+            android:gravity="center"
+            android:textAllCaps="true"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1. Học viện Phong thủy Ngũ hành được thành lập tại Hà Nội năm 2016, tiền thân là TT Phong thủy Kiến trúc thuộc Đại học Xây dựng Hà Nội."
+            android:textColor="@color/tint_color"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:textSize="@dimen/_12sdp"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/tint_color"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:textSize="@dimen/_12sdp"
+            android:text="2. Viện Phong thuỷ Thế giới (WIFS) được thành lập tại Hồng Kong năm 1995. Văn phòng tại Việt Nam có quyết định thành lập vào năm 2016, do thầy Nguyễn Mạnh Linh - Học viện Phong thủy Ngũ hành đại diện."
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/tint_color"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:textSize="@dimen/_12sdp"
+            android:text="Chúng tôi đã tổ chức các khoá học hàng tháng liên tục trong 20 năm qua. Viện cũng tư vấn phong thuỷ cho nhiều tổ chức chuyên nghiệp như các sân bay quốc tế, ngân hàng, cung văn hoá, sàn giao dịch bất động sản,..."
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/tint_color"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:textSize="@dimen/_12sdp"
+            android:text="Viện đi tiên phong vào nghiên cứu, ứng dụng các công cụ cho nghiên cứu phong thuỷ, cũng như sử dụng máy móc khoa học vào kiểm chứng phong thuỷ, tâm linh như phát triển các ứng dụng địa từ trường (EmfSensor). Hợp tác với đối tác Đài Loan nghiên cứu, sản xuất ăng-ten địa từ trường. Hiện đang hợp tác với các đối tác tại Châu Á như Đài Loan, Hàn Quốc, Việt Nam, Trung Quốc, Hong Kong và Singapore để phát triển các ứng dụng cho nghiên cứu phong thuỷ, tâm linh tại địa phương."
+            />
+    </LinearLayout>
+</ScrollView>

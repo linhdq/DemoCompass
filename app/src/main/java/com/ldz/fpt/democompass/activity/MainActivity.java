@@ -1,4 +1,4 @@
-package com.ldz.fpt.democompass;
+package com.ldz.fpt.democompass.activity;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -30,6 +30,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.ldz.fpt.democompass.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -285,6 +286,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         isOnMyLocation = false;
     }
 
+    private void goToInfoActivity() {
+        Intent intent = new Intent(this, InfoActivity.class);
+        startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -309,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 break;
             case R.id.btn_info:
-
+                goToInfoActivity();
                 break;
             default:
                 break;
