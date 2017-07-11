@@ -1,8 +1,15 @@
 package com.ldz.fpt.democompass.activity;
 
 import android.app.Dialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -11,12 +18,16 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
@@ -24,6 +35,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.games.snapshot.Snapshot;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -32,12 +44,17 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.ldz.fpt.democompass.R;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener,
         OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMapLoadedCallback, GoogleMap.OnCameraIdleListener, View.OnClickListener {
+        GoogleMap.OnMapLoadedCallback, GoogleMap.OnCameraIdleListener, View.OnClickListener, Animation.AnimationListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     //view
@@ -54,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private ImageView btnCaptureScreen;
     private ImageView btnInfo;
     private View mapView;
+    private View flashView;
+    private AlphaAnimation alphaAnimation;
     //
     private SensorManager sensorManager;
     //
@@ -124,6 +143,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         btnLock = (ImageView) findViewById(R.id.btn_lock);
         btnCaptureScreen = (ImageView) findViewById(R.id.btn_capture_screen);
         btnInfo = (ImageView) findViewById(R.id.btn_info);
+        flashView = findViewById(R.id.flash_view);
+        flashView.setVisibility(View.GONE);
+        //Animation
+        alphaAnimation = new AlphaAnimation(1, 0);
+        alphaAnimation.setDuration(500);
+        alphaAnimation.setAnimationListener(this);
         //
         dialogInternet = new Dialog(this);
         dialogInternet.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
@@ -191,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             ra.setFillAfter(true);
             // Start the animation
             imvCompass.startAnimation(ra);
-            if (!isAnimate) {
+            if (!isAnimate && mMap != null) {
                 location = mMap.getMyLocation();
                 if (location != null) {
                     mMap.setOnCameraIdleListener(MainActivity.this);
@@ -313,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 isLocked = true;
                 break;
             case R.id.btn_capture_screen:
-
+                flashView.startAnimation(alphaAnimation);
                 break;
             case R.id.btn_info:
                 goToInfoActivity();
@@ -321,6 +346,44 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             default:
                 break;
         }
+    }
+
+    private void saveImage(Bitmap bm) {
+        //Code below is saving to external storage
+
+        final String dirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Screenshots";
+        File dir = new File(dirPath);
+        if (!dir.exists())
+            dir.mkdirs();
+        String fileName = System.currentTimeMillis() + ".jpeg";
+        File file = new File(dirPath, fileName);
+        try {
+            FileOutputStream fOut = new FileOutputStream(file);
+            bm.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+            fOut.flush();
+            fOut.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void captureMapScreen() {
+        GoogleMap.SnapshotReadyCallback snapshotReadyCallback = new GoogleMap.SnapshotReadyCallback() {
+            @Override
+            public void onSnapshotReady(Bitmap bitmap) {
+                getWindow().getDecorView().findViewById(android.R.id.content).setDrawingCacheEnabled(true);
+                Bitmap backBitmap = getWindow().getDecorView().findViewById(android.R.id.content).getDrawingCache();
+                Bitmap bmOverlay = Bitmap.createBitmap(
+                        backBitmap.getWidth(), backBitmap.getHeight(),
+                        backBitmap.getConfig());
+                Canvas canvas = new Canvas(bmOverlay);
+                canvas.drawBitmap(bitmap, new Matrix(), null);
+                canvas.drawBitmap(backBitmap, 0, 0, null);
+                saveImage(bmOverlay);
+            }
+        };
+        mMap.snapshot(snapshotReadyCallback);
     }
 
     private String getDirection(float degree) {
@@ -517,5 +580,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             return String.format("Khôn Vi Địa 1/1\n(%.3f) Nhâm-Tý", degree);
         }
         return "";
+    }
+
+    @Override
+    public void onAnimationStart(Animation animation) {
+        flashView.setVisibility(View.VISIBLE);
+        btnCaptureScreen.setClickable(false);
+        captureMapScreen();
+    }
+
+    @Override
+    public void onAnimationEnd(Animation animation) {
+        flashView.setVisibility(View.GONE);
+        btnCaptureScreen.setClickable(true);
+    }
+
+    @Override
+    public void onAnimationRepeat(Animation animation) {
+
     }
 }
