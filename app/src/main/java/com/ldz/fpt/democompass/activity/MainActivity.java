@@ -362,10 +362,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             bm.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
             fOut.flush();
             fOut.close();
+            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            File f = new File(dirPath+"/"+fileName);
+            Uri contentUri = Uri.fromFile(f);
+            mediaScanIntent.setData(contentUri);
+            this.sendBroadcast(mediaScanIntent);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     private void captureMapScreen() {
