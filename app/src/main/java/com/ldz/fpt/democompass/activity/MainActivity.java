@@ -24,6 +24,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -216,20 +217,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             ra.setFillAfter(true);
             // Start the animation
             imvCompass.startAnimation(ra);
-            if (!isAnimate && mMap != null) {
-                location = mMap.getMyLocation();
-                if (location != null) {
-                    mMap.setOnCameraIdleListener(MainActivity.this);
-                    CameraPosition cameraPosition = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, 0, 0);
-                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                    isAnimate = true;
-                    txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", location.getLongitude(), location.getLatitude(), today));
-                }
-            }
+//            if (!isAnimate && mMap != null) {
+//                location = mMap.getMyLocation();
+//                if (location != null) {
+//                    mMap.setOnCameraIdleListener(MainActivity.this);
+//                    CameraPosition cameraPosition = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, 0, 0);
+//                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+//                    isAnimate = true;
+//                    txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", location.getLongitude(), location.getLatitude(), today));
+//                }
+//            }
             if (mMap != null && Math.abs(-currentDegrees - degree) >= 0.1f && !isOnMyLocation) {
                 rotateMap(degree);
-                //
-                txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", location.getLongitude(), location.getLatitude(), today));
             }
             currentDegrees = -degree;
         }
@@ -266,9 +265,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void rotateMap(float bearing) {
         centerPosition = mMap.getCameraPosition().target;
         if (centerPosition != null) {
+            Log.d(TAG, "rotateMap: "+centerPosition.latitude+", "+centerPosition.longitude);
             CameraPosition current = mMap.getCameraPosition();
             CameraPosition position = new CameraPosition(centerPosition, current.zoom, current.tilt, bearing);
             mMap.moveCamera(CameraUpdateFactory.newCameraPosition(position));
+            txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", centerPosition.longitude, centerPosition.latitude, today));
         }
     }
 
@@ -298,12 +299,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onMapLoaded() {
-        location = mMap.getMyLocation();
-        if (location != null) {
-            mMap.setOnCameraIdleListener(MainActivity.this);
-            CameraPosition cameraPosition = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, 0, 0);
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        }
+        mMap.setOnCameraIdleListener(MainActivity.this);
+        CameraPosition cameraPosition = new CameraPosition(new LatLng(21.027830828547962, 105.85224889218807), 16.5f, 0, 0);
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", 105.85224889218807, 21.027830828547962f, today));
     }
 
     @Override
