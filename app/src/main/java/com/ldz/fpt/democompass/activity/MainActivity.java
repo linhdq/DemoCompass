@@ -351,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void saveImage(Bitmap bm) {
         //Code below is saving to external storage
 
-        final String dirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Screenshots";
+        final String dirPath = Environment.getExternalStorageDirectory()+ "/Screenshots";
         File dir = new File(dirPath);
         if (!dir.exists())
             dir.mkdirs();
