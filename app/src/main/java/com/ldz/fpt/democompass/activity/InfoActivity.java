@@ -4,6 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.ldz.fpt.democompass.R;
 import com.ldz.fpt.democompass.adapter.ViewPagerAdapter;
@@ -21,6 +23,7 @@ public class InfoActivity extends AppCompatActivity {
     //view
     private CircleIndicator circleIndicator;
     private ViewPager viewPager;
+    private ImageView btnBack;
     //
     private ViewPagerAdapter viewPagerAdapter;
     //fragment
@@ -44,6 +47,7 @@ public class InfoActivity extends AppCompatActivity {
         //view
         circleIndicator = (CircleIndicator) findViewById(R.id.circle_indicator);
         viewPager = (ViewPager) findViewById(R.id.view_pager);
+        btnBack = (ImageView) findViewById(R.id.btn_back);
         //fragment
         list = new ArrayList<>();
         list.add(new AboutUsFragment());
@@ -53,5 +57,12 @@ public class InfoActivity extends AppCompatActivity {
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), list);
         viewPager.setAdapter(viewPagerAdapter);
         circleIndicator.setViewPager(viewPager);
+        //
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
     }
 }

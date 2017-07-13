@@ -202,6 +202,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+        if (mMap != null) {
+            centerPosition = mMap.getCameraPosition().target;
+            if (centerPosition != null) {
+                txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", centerPosition.longitude, centerPosition.latitude, today));
+            }
+        }
         if (!isLocked) {
             // get the angle around the z-axis rotated
             float degree = sensorEvent.values[0];
@@ -217,16 +223,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             ra.setFillAfter(true);
             // Start the animation
             imvCompass.startAnimation(ra);
-//            if (!isAnimate && mMap != null) {
-//                location = mMap.getMyLocation();
-//                if (location != null) {
-//                    mMap.setOnCameraIdleListener(MainActivity.this);
-//                    CameraPosition cameraPosition = new CameraPosition(new LatLng(location.getLatitude(), location.getLongitude()), 16.5f, 0, 0);
-//                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-//                    isAnimate = true;
-//                    txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", location.getLongitude(), location.getLatitude(), today));
-//                }
-//            }
             if (mMap != null && Math.abs(-currentDegrees - degree) >= 0.1f && !isOnMyLocation) {
                 rotateMap(degree);
             }
@@ -263,13 +259,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void rotateMap(float bearing) {
-        centerPosition = mMap.getCameraPosition().target;
         if (centerPosition != null) {
-            Log.d(TAG, "rotateMap: "+centerPosition.latitude+", "+centerPosition.longitude);
             CameraPosition current = mMap.getCameraPosition();
             CameraPosition position = new CameraPosition(centerPosition, current.zoom, current.tilt, bearing);
             mMap.moveCamera(CameraUpdateFactory.newCameraPosition(position));
-            txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", centerPosition.longitude, centerPosition.latitude, today));
         }
     }
 
@@ -350,7 +343,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void saveImage(Bitmap bm) {
         //Code below is saving to external storage
 
-        final String dirPath = Environment.getExternalStorageDirectory()+ "/Screenshots";
+        final String dirPath = Environment.getExternalStorageDirectory() + "/Screenshots";
         File dir = new File(dirPath);
         if (!dir.exists())
             dir.mkdirs();
@@ -362,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             fOut.flush();
             fOut.close();
             Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-            File f = new File(dirPath+"/"+fileName);
+            File f = new File(dirPath + "/" + fileName);
             Uri contentUri = Uri.fromFile(f);
             mediaScanIntent.setData(contentUri);
             this.sendBroadcast(mediaScanIntent);

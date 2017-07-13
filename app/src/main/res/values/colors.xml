@@ -10,4 +10,5 @@
     <color name="grey_400">#BDBDBD</color>
     <color name="grey_900">#212121</color>
     <color name="tint_color">#6a7999</color>
+    <color name="grey_800">#424242</color>
 </resources>
