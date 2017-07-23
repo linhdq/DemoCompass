@@ -92,6 +92,7 @@ public class HomeActivity extends AppCompatActivity implements SensorEventListen
     private boolean isLocked;
     private boolean isOnMyLocation;
     private boolean isShareScreen;
+    private boolean isFirst;
     private String today;
     private SupportMapFragment mapFragment;
     //
@@ -203,6 +204,7 @@ public class HomeActivity extends AppCompatActivity implements SensorEventListen
         isOnMyLocation = true;
         isShareScreen = false;
         isLocked = false;
+        isFirst = true;
     }
 
     private void addListener() {
@@ -326,10 +328,14 @@ public class HomeActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onMapLoaded() {
-        mMap.setOnCameraIdleListener(HomeActivity.this);
-        CameraPosition cameraPosition = new CameraPosition(new LatLng(21.027830828547962, 105.85224889218807), 16.5f, 0, 0);
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", 105.85224889218807, 21.027830828547962f, today));
+        if (isFirst) {
+            Log.d(TAG, "onMapLoaded: ");
+            mMap.setOnCameraIdleListener(HomeActivity.this);
+            CameraPosition cameraPosition = new CameraPosition(new LatLng(21.027830828547962, 105.85224889218807), 16.5f, 0, 0);
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", 105.85224889218807, 21.027830828547962f, today));
+            isFirst = false;
+        }
     }
 
     @Override
@@ -677,14 +683,12 @@ public class HomeActivity extends AppCompatActivity implements SensorEventListen
             if (resultCode == RESULT_OK) {
                 Place place = PlaceAutocomplete.getPlace(this, data);
                 if (place != null) {
-                    Log.d(TAG, "onActivityResult: "+place.getName()+", "+place.getLatLng());
-                    CameraPosition current = mMap.getCameraPosition();
-                    Log.d(TAG, "onActivityResult: "+current.target);
-                    CameraPosition cameraPosition = new CameraPosition(new LatLng(place.getLatLng().latitude, place.getLatLng().longitude), current.zoom, current.tilt, current.bearing);
-                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                    Log.d(TAG, "onActivityResult: " + place.getName() + ", " + place.getLatLng());
+                    centerPosition = place.getLatLng();
+                    rotateMap(0f);
                     txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", place.getLatLng().longitude, place.getLatLng().latitude, today));
-                    current = mMap.getCameraPosition();
-                    Log.d(TAG, "onActivityResult: after "+current.target);
+                    CameraPosition current = mMap.getCameraPosition();
+                    Log.d(TAG, "onActivityResult: " + current.target);
                 }
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
