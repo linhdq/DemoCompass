@@ -1,14 +1,10 @@
 package com.ldz.fpt.democompass.activity;
 
 import android.app.Dialog;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -21,7 +17,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -36,7 +31,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.games.snapshot.Snapshot;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -46,18 +45,17 @@ import com.google.android.gms.maps.model.LatLng;
 import com.ldz.fpt.democompass.R;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener,
+public class HomeActivity extends AppCompatActivity implements SensorEventListener,
         OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnMapLoadedCallback, GoogleMap.OnCameraIdleListener, View.OnClickListener, Animation.AnimationListener {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = HomeActivity.class.getSimpleName();
+    public static final String URL = "http://vienphongthuy.vn";
+    private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     //view
     private TextView txtTitle;
     private ImageView imvCompass;
@@ -71,13 +69,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private ImageView btnLock;
     private ImageView btnCaptureScreen;
     private ImageView btnInfo;
+    private ImageView btnShare;
     private View mapView;
     private View flashView;
+    private ImageView imvLogo;
+    private ImageView btnSearch;
     private AlphaAnimation alphaAnimation;
+    //dialog
+    private Dialog dialogWaiting;
     //
     private SensorManager sensorManager;
     //
     private float currentDegrees = 0f;
+    private float degree;
+    private float minusValue;
     //
     private GoogleMap mMap;
     private LocationManager locationManager;
@@ -86,9 +91,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //
     private boolean isLocked;
     private boolean isOnMyLocation;
-    private boolean isAnimate;
+    private boolean isShareScreen;
     private String today;
     private SupportMapFragment mapFragment;
+    //
+    private Uri screenShotUri;
     //
     private SimpleDateFormat formatDate = new SimpleDateFormat("dd/MM/yyyy");
     private Date date;
@@ -97,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_home);
         //
         init();
         addListener();
@@ -146,6 +153,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         btnInfo = (ImageView) findViewById(R.id.btn_info);
         flashView = findViewById(R.id.flash_view);
         flashView.setVisibility(View.GONE);
+        imvLogo = (ImageView) findViewById(R.id.imv_logo);
+        btnSearch = (ImageView) findViewById(R.id.btn_search);
+        btnShare = (ImageView) findViewById(R.id.btn_share);
+        //dialog
+        dialogWaiting = new Dialog(this);
+        dialogWaiting.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        dialogWaiting.setContentView(R.layout.custom_dialog_waiting);
+        dialogWaiting.setCanceledOnTouchOutside(false);
         //Animation
         alphaAnimation = new AlphaAnimation(1, 0);
         alphaAnimation.setDuration(500);
@@ -186,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", 0f, 0f, today));
         //
         isOnMyLocation = true;
-        isAnimate = false;
+        isShareScreen = false;
         isLocked = false;
     }
 
@@ -198,6 +213,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         btnLock.setOnClickListener(this);
         btnCaptureScreen.setOnClickListener(this);
         btnInfo.setOnClickListener(this);
+        imvLogo.setOnClickListener(this);
+        btnSearch.setOnClickListener(this);
+        btnShare.setOnClickListener(this);
+    }
+
+    private void openSearchFunction() {
+        try {
+            Intent intent =
+                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+                            .build(this);
+            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+        } catch (GooglePlayServicesRepairableException e) {
+            e.printStackTrace();
+            // TODO: Handle the error.
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+            // TODO: Handle the error.
+        }
     }
 
     @Override
@@ -209,19 +242,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
         if (!isLocked) {
-            // get the angle around the z-axis rotated
-            float degree = sensorEvent.values[0];
-            txtTitle.setText(getDirection(degree));
-            // create a rotation animation (reverse turn degree degrees)
+            degree = sensorEvent.values[0];
+            if (degree <= 180f) {
+                minusValue = 180f;
+            } else {
+                minusValue = -180f;
+            }
+            txtTitle.setText(getDirection(Math.abs(degree + minusValue)));
             RotateAnimation ra = new RotateAnimation(
                     currentDegrees, -degree,
                     Animation.RELATIVE_TO_SELF, 0.5f,
                     Animation.RELATIVE_TO_SELF, 0.5f);
-            // how long the animation will take place
             ra.setDuration(210);
-            // set the animation after the end of the reservation status
             ra.setFillAfter(true);
-            // Start the animation
             imvCompass.startAnimation(ra);
             if (mMap != null && Math.abs(-currentDegrees - degree) >= 0.1f && !isOnMyLocation) {
                 rotateMap(degree);
@@ -240,8 +273,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mMap = googleMap;
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setCompassEnabled(false);
-        mMap.setOnMyLocationButtonClickListener(MainActivity.this);
-        mMap.setOnMapLoadedCallback(MainActivity.this);
+        mMap.setOnMyLocationButtonClickListener(HomeActivity.this);
+        mMap.setOnMapLoadedCallback(HomeActivity.this);
         mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
         //
         if (mapView != null &&
@@ -254,7 +287,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             // position on right bottom
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-            layoutParams.setMargins(0, 0, 30, 30);
+            layoutParams.setMargins(0, 0, 29,
+                    getResources().getDimensionPixelSize(R.dimen.search_size));
         }
     }
 
@@ -292,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onMapLoaded() {
-        mMap.setOnCameraIdleListener(MainActivity.this);
+        mMap.setOnCameraIdleListener(HomeActivity.this);
         CameraPosition cameraPosition = new CameraPosition(new LatLng(21.027830828547962, 105.85224889218807), 16.5f, 0, 0);
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", 105.85224889218807, 21.027830828547962f, today));
@@ -330,19 +364,49 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 isLocked = true;
                 break;
             case R.id.btn_capture_screen:
+                isShareScreen = false;
                 flashView.startAnimation(alphaAnimation);
                 break;
             case R.id.btn_info:
                 goToInfoActivity();
+                break;
+            case R.id.imv_logo:
+                openWebBrowser();
+                break;
+            case R.id.btn_search:
+                openSearchFunction();
+                break;
+            case R.id.btn_share:
+                dialogWaiting.show();
+                if (screenShotUri != null) {
+                    Log.d(TAG, "onClick: not null");
+                    shareScreenShot();
+                } else {
+                    Log.d(TAG, "onClick: new");
+                    isShareScreen = true;
+                    captureMapScreen();
+                }
                 break;
             default:
                 break;
         }
     }
 
+    private void shareScreenShot() {
+        Log.d(TAG, "shareScreenShot: "+screenShotUri);
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out my app.");
+        shareIntent.putExtra(Intent.EXTRA_STREAM, screenShotUri);
+        shareIntent.setType("image/*");
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        dialogWaiting.dismiss();
+        startActivity(Intent.createChooser(shareIntent, "Share via"));
+        screenShotUri = null;
+    }
+
     private void saveImage(Bitmap bm) {
         //Code below is saving to external storage
-
         final String dirPath = Environment.getExternalStorageDirectory() + "/Screenshots";
         File dir = new File(dirPath);
         if (!dir.exists())
@@ -351,14 +415,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         File file = new File(dirPath, fileName);
         try {
             FileOutputStream fOut = new FileOutputStream(file);
-            bm.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+            bm.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
             fOut.flush();
             fOut.close();
             Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
             File f = new File(dirPath + "/" + fileName);
-            Uri contentUri = Uri.fromFile(f);
-            mediaScanIntent.setData(contentUri);
+            screenShotUri = Uri.fromFile(f);
+            mediaScanIntent.setData(screenShotUri);
             this.sendBroadcast(mediaScanIntent);
+            if (isShareScreen) {
+                shareScreenShot();
+                isShareScreen = false;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -376,10 +444,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Canvas canvas = new Canvas(bmOverlay);
                 canvas.drawBitmap(bitmap, new Matrix(), null);
                 canvas.drawBitmap(backBitmap, 0, 0, null);
+                getWindow().getDecorView().findViewById(android.R.id.content).setDrawingCacheEnabled(false);
                 saveImage(bmOverlay);
             }
         };
         mMap.snapshot(snapshotReadyCallback);
+    }
+
+    private void openWebBrowser() {
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(URL));
+        startActivity(i);
     }
 
     private String getDirection(float degree) {
@@ -594,5 +669,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onAnimationRepeat(Animation animation) {
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlaceAutocomplete.getPlace(this, data);
+                if (place != null) {
+                    centerPosition = place.getLatLng();
+                    rotateMap(0);
+                    txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", place.getLatLng().longitude, place.getLatLng().latitude, today));
+                }
+            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                Status status = PlaceAutocomplete.getStatus(this, data);
+                // TODO: Handle the error.
+                Log.i(TAG, status.getStatusMessage());
+
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+                Log.d(TAG, "onActivityResult: canceled");
+            }
+        }
     }
 }

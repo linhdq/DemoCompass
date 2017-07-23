@@ -1,9 +1,11 @@
 package com.ldz.fpt.democompass.activity;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -18,12 +20,13 @@ import java.util.List;
 
 import me.relex.circleindicator.CircleIndicator;
 
-public class InfoActivity extends AppCompatActivity {
+public class InfoActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = InfoActivity.class.getSimpleName();
     //view
     private CircleIndicator circleIndicator;
     private ViewPager viewPager;
     private ImageView btnBack;
+    private ImageView imvLogo;
     //
     private ViewPagerAdapter viewPagerAdapter;
     //fragment
@@ -35,6 +38,7 @@ public class InfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_info);
         //
         init();
+        addListener();
     }
 
     @Override
@@ -48,6 +52,7 @@ public class InfoActivity extends AppCompatActivity {
         circleIndicator = (CircleIndicator) findViewById(R.id.circle_indicator);
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         btnBack = (ImageView) findViewById(R.id.btn_back);
+        imvLogo = (ImageView) findViewById(R.id.imv_logo);
         //fragment
         list = new ArrayList<>();
         list.add(new AboutUsFragment());
@@ -57,12 +62,30 @@ public class InfoActivity extends AppCompatActivity {
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), list);
         viewPager.setAdapter(viewPagerAdapter);
         circleIndicator.setViewPager(viewPager);
-        //
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+    }
+
+    private void addListener() {
+        btnBack.setOnClickListener(this);
+        imvLogo.setOnClickListener(this);
+    }
+
+    private void openWebBrowser() {
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(HomeActivity.URL));
+        startActivity(i);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_back:
                 onBackPressed();
-            }
-        });
+                break;
+            case R.id.imv_logo:
+                openWebBrowser();
+                break;
+            default:
+                break;
+        }
     }
 }

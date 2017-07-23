@@ -31,7 +31,7 @@ public class LauncherActivity extends AppCompatActivity implements MediaPlayer.O
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        Intent intent = new Intent(LauncherActivity.this, MainActivity.class);
+        Intent intent = new Intent(LauncherActivity.this, HomeActivity.class);
         startActivity(intent);
         finish();
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);

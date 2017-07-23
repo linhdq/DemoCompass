@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/custom_background_item_search"
+    android:padding="@dimen/_8sdp"
+    android:gravity="center_vertical"
+    >
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateDrawable="@drawable/progress_bar"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Đang xử lý! Vui lòng chờ ..."
+        android:textColor="@color/grey_800"
+        android:textSize="@dimen/_12sdp"
+        android:textStyle="italic"
+        android:layout_marginLeft="@dimen/_10sdp"
+        />
+</LinearLayout>
