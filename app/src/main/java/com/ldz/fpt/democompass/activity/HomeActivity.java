@@ -393,7 +393,7 @@ public class HomeActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void shareScreenShot() {
-        Log.d(TAG, "shareScreenShot: "+screenShotUri);
+        Log.d(TAG, "shareScreenShot: " + screenShotUri);
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out my app.");
@@ -677,9 +677,14 @@ public class HomeActivity extends AppCompatActivity implements SensorEventListen
             if (resultCode == RESULT_OK) {
                 Place place = PlaceAutocomplete.getPlace(this, data);
                 if (place != null) {
-                    centerPosition = place.getLatLng();
-                    rotateMap(0);
+                    Log.d(TAG, "onActivityResult: "+place.getName()+", "+place.getLatLng());
+                    CameraPosition current = mMap.getCameraPosition();
+                    Log.d(TAG, "onActivityResult: "+current.target);
+                    CameraPosition cameraPosition = new CameraPosition(new LatLng(place.getLatLng().latitude, place.getLatLng().longitude), current.zoom, current.tilt, current.bearing);
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                     txtStatusBottom.setText(String.format("Kinh độ: %.3f - Vĩ độ: %.3f\nNgày đo: %s", place.getLatLng().longitude, place.getLatLng().latitude, today));
+                    current = mMap.getCameraPosition();
+                    Log.d(TAG, "onActivityResult: after "+current.target);
                 }
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
