@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.ldz.fpt.democompass.activity.HomeActivity">
+    tools:context="com.ldz.fpt.democompass.com.ldz.fpt.nguhanh.activity.HomeActivity">
 
     <RelativeLayout
         android:id="@+id/layout_bottom"
