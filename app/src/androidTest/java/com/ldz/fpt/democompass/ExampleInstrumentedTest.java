@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.ldz.fpt.democompass", appContext.getPackageName());
+        assertEquals("com.vn.fpt.democompass", appContext.getPackageName());
     }
 }
